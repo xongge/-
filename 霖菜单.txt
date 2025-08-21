@@ -1,0 +1,168 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- 创建主容器
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FloatingSystem"
+screenGui.Parent = playerGui
+screenGui.DisplayOrder = 100 -- 确保显示在最上层
+
+-- 创建悬浮球
+local floatingBall = Instance.new("TextButton")
+floatingBall.Name = "FloatingBall"
+floatingBall.Size = UDim2.new(0, 70, 0, 70)
+floatingBall.Position = UDim2.new(0.1, 0, 0.5, 0)
+floatingBall.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
+floatingBall.Text = "霖菜单"
+floatingBall.TextColor3 = Color3.new(1, 1, 1)
+floatingBall.Font = Enum.Font.SourceSansBold
+floatingBall.TextSize = 18
+floatingBall.BorderSizePixel = 2
+floatingBall.BorderColor3 = Color3.new(0, 0, 0)
+floatingBall.Parent = screenGui
+
+-- 创建菜单面板
+local menuPanel = Instance.new("Frame")
+menuPanel.Name = "MenuPanel"
+menuPanel.Size = UDim2.new(0, 220, 0, 250)
+menuPanel.Position = UDim2.new(0.2, 0, 0.5, 0)
+menuPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+menuPanel.BackgroundTransparency = 0.6
+menuPanel.BorderSizePixel = 2
+menuPanel.Visible = false
+menuPanel.Parent = screenGui
+
+-- 菜单拖动按钮
+local dragButton = Instance.new("TextButton")
+dragButton.Name = "DragButton"
+dragButton.Size = UDim2.new(1, 0, 0, 30)
+dragButton.Position = UDim2.new(0, 0, 0, 0)
+dragButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+dragButton.Text = ""
+dragButton.Parent = menuPanel
+
+-- 最小化按钮
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Name = "MinimizeButton"
+minimizeButton.Size = UDim2.new(0, 20, 0, 20)
+minimizeButton.Position = UDim2.new(1, -25, 0, 5)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+minimizeButton.Text = "-"
+minimizeButton.TextColor3 = Color3.new(1, 1, 1)
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Parent = menuPanel
+
+-- 创建功能按钮（带点击事件）
+local function createButton(text, y, onClick)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 50)
+    btn.Position = UDim2.new(0.05, 0, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.Text = text
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Parent = menuPanel
+    btn.MouseButton1Click:Connect(onClick)
+    return btn
+end
+
+-- 飞行按钮点击事件（在这里写飞行逻辑）
+createButton("飞行", 40, function()
+    -- 提示：飞行功能通常需要控制角色的Humanoid或施加力
+    -- 示例步骤：
+    -- 1. 获取角色的Humanoid：local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+    -- 2. 切换飞行状态：比如设置humanoid.PlatformStand = true（让角色悬空）
+    -- 3. 通过键盘输入（如WASD）控制移动方向，用BodyMovers施加力
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/fly-/refs/heads/main/飞行脚本.txt"))()
+end)
+
+-- 穿墙按钮点击事件（在这里写穿墙逻辑）
+createButton("子弹追踪(未测试)", 100, function()
+    -- 提示：穿墙功能通常需要忽略碰撞
+    -- 示例步骤：
+    -- 1. 获取角色的所有碰撞部件：for _, part in ipairs(player.Character:GetDescendants()) do ... end
+    -- 2. 切换碰撞状态：设置part.CanCollide = false（关闭碰撞）
+    -- 3. 可以加一个开关变量（如isNoclip）控制开启/关闭
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E5%AD%90%E5%BC%B9%E8%BF%BD%E8%B8%AA.txt"))()
+end)
+
+-- 自瞄按钮点击事件（在这里写自瞄逻辑）
+createButton("自瞄", 160, function()
+    -- 提示：自瞄功能通常需要射线检测锁定目标
+    -- 示例步骤：
+    -- 1. 用RunService循环检测：RunService.RenderStepped:Connect(function() ... end)
+    -- 2. 发射射线检测敌人：local ray = Ray.new(枪口位置, 瞄准方向 * 距离)
+    -- 3. 获取目标位置后，控制角色头部/武器朝向目标：CFrame.lookAt(当前位置, 目标位置)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E8%87%AA%E7%9E%84.txt"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E9%9D%A2%E5%90%91.txt"))()
+end)
+
+-- 关闭按钮
+local closeBtn = createButton("关闭", 220, function()
+    screenGui:Destroy()
+end)
+
+-- 菜单显示/隐藏
+floatingBall.MouseButton1Click:Connect(function()
+    menuPanel.Visible = not menuPanel.Visible
+end)
+
+minimizeButton.MouseButton1Click:Connect(function()
+    menuPanel.Visible = false
+end)
+
+-- 悬浮球拖动逻辑
+local ballIsDragging = false
+local ballPressStart = 0
+local ballOffset = Vector2.new()
+
+floatingBall.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        ballPressStart = tick()
+        ballOffset = input.Position - floatingBall.AbsolutePosition
+    end
+end)
+
+floatingBall.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        ballIsDragging = (tick() - ballPressStart >= 2)
+    end
+end)
+
+-- 菜单拖动逻辑
+local menuIsDragging = false
+local menuPressStart = 0
+local menuOffset = Vector2.new()
+
+dragButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        menuPressStart = tick()
+        menuOffset = input.Position - menuPanel.AbsolutePosition
+    end
+end)
+
+dragButton.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        menuIsDragging = (tick() - menuPressStart >= 0.5)
+    end
+end)
+
+-- 实时更新位置
+RunService.Heartbeat:Connect(function()
+    local mousePos = UserInputService:GetMouseLocation()
+    if ballIsDragging then
+        floatingBall.Position = UDim2.new(0, mousePos.X - ballOffset.X, 0, mousePos.Y - ballOffset.Y)
+    end
+    if menuIsDragging then
+        menuPanel.Position = UDim2.new(0, mousePos.X - menuOffset.X, 0, mousePos.Y - menuOffset.Y)
+    end
+end)
+
+-- 停止拖动
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        ballIsDragging = false
+        menuIsDragging = false
+    end
+end)
