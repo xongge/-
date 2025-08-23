@@ -95,7 +95,7 @@ end)
 
 createButton("自瞄", 130, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E8%87%AA%E7%9E%84.txt"))()
-
+end)
 -- 新增三个按钮
 createButton("自然黑洞", 190, function()
     -- 黑洞逻辑可以在这里实现
