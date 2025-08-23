@@ -37,7 +37,9 @@ local menuBg = Instance.new("ImageLabel")
 menuBg.Name = "MenuBackground"
 menuBg.Size = UDim2.new(1, 0, 1, 0) -- 填满菜单面板
 menuBg.Image = "rbxassetid://119925416985042" -- 替换为你的背景图片ID
+print("图片获取成功")
 menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
+menuBg.BackgroundTransparency = 1 -- 新增：图片自身背景透明
 menuBg.Parent = menuPanel
 
 -- 菜单拖动按钮
@@ -166,7 +168,7 @@ end)
 
 dragButton.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        menuIsDragging = (tick() - menuPressStart >= 0.37)
+        menuIsDragging = (tick() - menuPressStart >= 0.25)
     end
 end)
 
