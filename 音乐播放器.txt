@@ -1,0 +1,49 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local SoundService = game:GetService("SoundService")
+
+-- 创建界面容器
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MusicPlayer"
+screenGui.Parent = playerGui
+screenGui.DisplayOrder = 100
+   
+     print("linvop提供")
+
+-- 创建开关按钮（位置改为右上角）
+local toggleButton = Instance.new("TextButton")
+toggleButton.Name = "ToggleButton"
+toggleButton.Size = UDim2.new(0, 120, 0, 40)
+-- 右上角位置：X轴靠右（0.95表示距离左侧95%屏幕宽度），Y轴靠上（0.02表示距离顶部2%屏幕高度）
+toggleButton.Position = UDim2.new(0.95, -120, 0.02, 0) 
+toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+toggleButton.Text = "开启音乐"
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.Font = Enum.Font.SourceSansBold
+toggleButton.TextSize = 18
+toggleButton.BorderSizePixel = 2
+toggleButton.BorderColor3 = Color3.new(0, 0, 0)
+toggleButton.Parent = screenGui
+
+-- 创建音乐对象
+local music = Instance.new("Sound")
+music.Name = "BackgroundMusic"
+music.SoundId = "rbxassetid://86054005661791" -- 替换为你的音乐ID
+music.Looped = true -- 自动循环
+music.Volume = 0.5
+music.Parent = SoundService
+
+-- 开关状态控制（保持不变）
+local isPlaying = false
+toggleButton.MouseButton1Click:Connect(function()
+    isPlaying = not isPlaying
+    if isPlaying then
+        music:Play()
+        toggleButton.Text = "关闭音乐"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+    else
+        music:Stop()
+        toggleButton.Text = "开启音乐"
+        toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    end
+end)
