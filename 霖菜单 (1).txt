@@ -168,7 +168,7 @@ end)
 
 dragButton.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        menuIsDragging = (tick() - menuPressStart >= 0.25)
+        menuIsDragging = (tick() - menuPressStart >= 0.2)
     end
 end)
 
