@@ -1,38 +1,43 @@
-local player = game:GetService("Players").LocalPlayer
-local runService = game:GetService("RunService")
-local worldGui = Instance.new("ScreenGui")
-worldGui.Name = "PlayerHighlightGui"
-worldGui.Parent = player.PlayerGui
+-- 获取核心服务
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local WorldGui = Instance.new("ScreenGui")
+WorldGui.Name = "PlayerIndicatorGui"
+WorldGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- 创建高亮和信息显示的函数
-local function createPlayerIndicators(targetPlayer)
-    -- 忽略自己
-    if targetPlayer == player then return end
+-- 存储所有玩家的高亮与信息组件（用于清理）
+local playerIndicators = {}
 
-    -- 等待目标玩家角色加载
+-- 核心函数：给玩家添加透视高亮 + 信息显示
+local function setupPlayerIndicator(targetPlayer)
+    -- 跳过自己
+    if targetPlayer == LocalPlayer then return end
+
+    -- 等待角色加载完成（防止 nil 错误）
     local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
     local head = character:WaitForChild("Head")
 
-    -- 创建高亮效果（透视+发光）
+    -- 创建高亮组件（穿墙显示）
     local highlight = Instance.new("Highlight")
     highlight.Name = "PlayerHighlight"
-    highlight.Adornee = character -- 绑定到角色
-    highlight.FillColor = Color3.fromRGB(255, 100, 100) -- 填充色
-    highlight.FillTransparency = 0.5 -- 半透明
-    highlight.OutlineColor = Color3.fromRGB(255, 255, 0) -- 轮廓色
-    highlight.OutlineTransparency = 0 -- 完全显示轮廓
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- 穿墙显示
+    highlight.Adornee = character
+    highlight.FillColor = Color3.fromRGB(255, 100, 100)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 0)
+    highlight.OutlineTransparency = 0
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
     highlight.Parent = character
 
-    -- 创建3D信息板（显示血量和距离）
+    -- 创建头顶信息板（显示血量+距离）
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "PlayerInfo"
-    billboard.Adornee = head -- 绑定到头部
-    billboard.Size = UDim2.new(0, 120, 0, 60) -- 信息板大小
-    billboard.StudsOffset = Vector3.new(0, 2, 0) -- 位置在头顶上方
-    billboard.AlwaysOnTop = true -- 始终显示在最上层
-    billboard.Parent = worldGui
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 120, 0, 60)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = WorldGui
 
     -- 血量文本
     local healthText = Instance.new("TextLabel")
@@ -49,19 +54,17 @@ local function createPlayerIndicators(targetPlayer)
     local distanceText = Instance.new("TextLabel")
     distanceText.Size = UDim2.new(1, 0, 0.5, 0)
     distanceText.Position = UDim2.new(0, 0, 0.5, 0)
-    distanceText.BackgroundTransparency = 1
-    distanceText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    healthText.TextColor3 = Color3.fromRGB(255, 255, 255)
     distanceText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     distanceText.TextStrokeTransparency = 0
-    distanceText.Text = "距离: 0  studs"
+    distanceText.Text = "距离: 0 米"
     distanceText.Parent = billboard
 
     -- 实时更新信息
     local function updateInfo()
-        -- 检查角色是否存在
-        if not character or not head or not humanoid then
-            highlight:Destroy()
-            billboard:Destroy()
+        -- 安全检查：防止角色销毁后报错
+        if not character or not head or not humanoid or not humanoid:IsDescendantOf(character) then
+            teardownPlayerIndicator(targetPlayer)
             return
         end
 
@@ -69,43 +72,58 @@ local function createPlayerIndicators(targetPlayer)
         local currentHealth = humanoid.Health
         local maxHealth = humanoid.MaxHealth
         healthText.Text = string.format("血量: %.0f/%.0f", currentHealth, maxHealth)
-        -- 血量低于30%时变红
-        if currentHealth / maxHealth <= 0.3 then
-            healthText.TextColor3 = Color3.fromRGB(255, 0, 0)
-        else
-            healthText.TextColor3 = Color3.fromRGB(255, 255, 255)
-        end
+        -- 低血量变红
+        healthText.TextColor3 = currentHealth / maxHealth <= 0.3 and Color3.fromRGB(255, 0, 0) or Color3.fromRGB(255, 255, 255)
 
-        -- 更新距离（基于玩家角色位置）
-        local myCharacter = player.Character
-        if myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
-            local myPos = myCharacter.HumanoidRootPart.Position
-            local targetPos = character.HumanoidRootPart.Position
-            local distance = (myPos - targetPos).Magnitude -- 计算直线距离
-            distanceText.Text = string.format("距离: %.1f studs", distance)
+        -- 更新距离
+        local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if myRoot then
+            local targetRoot = character:FindFirstChild("HumanoidRootPart")
+            if targetRoot then
+                local distance = (myRoot.Position - targetRoot.Position).Magnitude
+                distanceText.Text = string.format("距离: %.1f 米", distance)
+            end
         end
     end
 
-    -- 每帧更新
-    local connection = runService.RenderStepped:Connect(updateInfo)
+    -- 绑定更新（每帧执行）
+    local renderConnection = RunService.RenderStepped:Connect(updateInfo)
 
-    -- 角色消失时清理
-    humanoid.Died:Connect(function()
-        connection:Disconnect()
-        highlight:Destroy()
-        billboard:Destroy()
-    end)
-    targetPlayer.CharacterRemoving:Connect(function()
-        connection:Disconnect()
-        highlight:Destroy()
-        billboard:Destroy()
-    end)
+    -- 存储组件引用（用于后续清理）
+    playerIndicators[targetPlayer] = {
+        Highlight = highlight,
+        Billboard = billboard,
+        Connection = renderConnection
+    }
 end
 
--- 对现有玩家初始化
-for _, p in ipairs(game.Players:GetPlayers()) do
-    createPlayerIndicators(p)
+-- 清理玩家组件（角色死亡/离开时调用）
+local function teardownPlayerIndicator(targetPlayer)
+    local indicator = playerIndicators[targetPlayer]
+    if indicator then
+        indicator.Highlight:Destroy()
+        indicator.Billboard:Destroy()
+        indicator.Connection:Disconnect()
+        playerIndicators[targetPlayer] = nil
+    end
+end
+
+-- 初始化已有玩家
+for _, player in ipairs(Players:GetPlayers()) do
+    setupPlayerIndicator(player)
 end
 
 -- 监听新玩家加入
-game.Players.PlayerAdded:Connect(createPlayerIndicators)
+Players.PlayerAdded:Connect(setupPlayerIndicator)
+
+-- 监听玩家离开（清理残留组件）
+Players.PlayerRemoving:Connect(teardownPlayerIndicator)
+
+-- 监听角色销毁（比如死亡复活）
+LocalPlayer.CharacterRemoving:Connect(function()
+    -- 重新初始化所有玩家（防止自己复活后丢失显示）
+    for _, player in ipairs(Players:GetPlayers()) do
+        teardownPlayerIndicator(player)
+        setupPlayerIndicator(player)
+    end
+end)
