@@ -27,7 +27,7 @@ local menuPanel = Instance.new("Frame")
 menuPanel.Name = "MenuPanel"
 menuPanel.Size = UDim2.new(0, 220, 0, 300)
 menuPanel.Position = UDim2.new(0.2, 0, 0.5, 0)
---menuPanel.BackgroundTransparency = 1 -- 原背景透明化
+menuPanel.BackgroundTransparency = 1 -- 原背景透明化
 menuPanel.BorderSizePixel = 2
 menuPanel.Visible = false
 menuPanel.Parent = screenGui
@@ -84,7 +84,7 @@ local function createButton(text, y, onClick)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.9, 0, 0, 50)
     btn.Position = UDim2.new(0.05, 0, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.BackgroundColor3 = Color3.fromRGB(200, 255, 255)
     btn.BackgroundTransparency = 0.3 -- 按钮半透明（0-1之间调整）
     btn.Text = text
     btn.TextColor3 = Color3.new(1, 1, 1)
