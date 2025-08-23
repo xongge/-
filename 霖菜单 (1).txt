@@ -38,7 +38,7 @@ menuBg.Name = "MenuBackground"
 menuBg.Size = UDim2.new(1, 0, 1, 0) -- 填满菜单面板
 menuBg.Image = "rbxassetid://119925416985042" -- 替换为你的背景图片ID
 print("图片获取成功")
--- menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
+menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
 -- menuBg.BackgroundTransparency = 1 -- 新增：图片自身背景透明
 menuBg.Parent = menuPanel
 
@@ -84,7 +84,7 @@ local function createButton(text, y, onClick)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.9, 0, 0, 50)
     btn.Position = UDim2.new(0.05, 0, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB(200, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(200, 100, 100)
     btn.BackgroundTransparency = 0.3 -- 按钮半透明（0-1之间调整）
     btn.Text = text
     btn.TextColor3 = Color3.new(1, 1, 1)
