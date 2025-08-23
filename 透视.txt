@@ -1,0 +1,111 @@
+local player = game:GetService("Players").LocalPlayer
+local runService = game:GetService("RunService")
+local worldGui = Instance.new("ScreenGui")
+worldGui.Name = "PlayerHighlightGui"
+worldGui.Parent = player.PlayerGui
+
+-- 创建高亮和信息显示的函数
+local function createPlayerIndicators(targetPlayer)
+    -- 忽略自己
+    if targetPlayer == player then return end
+
+    -- 等待目标玩家角色加载
+    local character = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    local head = character:WaitForChild("Head")
+
+    -- 创建高亮效果（透视+发光）
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "PlayerHighlight"
+    highlight.Adornee = character -- 绑定到角色
+    highlight.FillColor = Color3.fromRGB(255, 100, 100) -- 填充色
+    highlight.FillTransparency = 0.5 -- 半透明
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 0) -- 轮廓色
+    highlight.OutlineTransparency = 0 -- 完全显示轮廓
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- 穿墙显示
+    highlight.Parent = character
+
+    -- 创建3D信息板（显示血量和距离）
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "PlayerInfo"
+    billboard.Adornee = head -- 绑定到头部
+    billboard.Size = UDim2.new(0, 120, 0, 60) -- 信息板大小
+    billboard.StudsOffset = Vector3.new(0, 2, 0) -- 位置在头顶上方
+    billboard.AlwaysOnTop = true -- 始终显示在最上层
+    billboard.Parent = worldGui
+
+    -- 血量文本
+    local healthText = Instance.new("TextLabel")
+    healthText.Size = UDim2.new(1, 0, 0.5, 0)
+    healthText.Position = UDim2.new(0, 0, 0, 0)
+    healthText.BackgroundTransparency = 1
+    healthText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    healthText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    healthText.TextStrokeTransparency = 0
+    healthText.Text = "血量: 100/100"
+    healthText.Parent = billboard
+
+    -- 距离文本
+    local distanceText = Instance.new("TextLabel")
+    distanceText.Size = UDim2.new(1, 0, 0.5, 0)
+    distanceText.Position = UDim2.new(0, 0, 0.5, 0)
+    distanceText.BackgroundTransparency = 1
+    distanceText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    distanceText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    distanceText.TextStrokeTransparency = 0
+    distanceText.Text = "距离: 0  studs"
+    distanceText.Parent = billboard
+
+    -- 实时更新信息
+    local function updateInfo()
+        -- 检查角色是否存在
+        if not character or not head or not humanoid then
+            highlight:Destroy()
+            billboard:Destroy()
+            return
+        end
+
+        -- 更新血量
+        local currentHealth = humanoid.Health
+        local maxHealth = humanoid.MaxHealth
+        healthText.Text = string.format("血量: %.0f/%.0f", currentHealth, maxHealth)
+        -- 血量低于30%时变红
+        if currentHealth / maxHealth <= 0.3 then
+            healthText.TextColor3 = Color3.fromRGB(255, 0, 0)
+        else
+            healthText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        end
+
+        -- 更新距离（基于玩家角色位置）
+        local myCharacter = player.Character
+        if myCharacter and myCharacter:FindFirstChild("HumanoidRootPart") then
+            local myPos = myCharacter.HumanoidRootPart.Position
+            local targetPos = character.HumanoidRootPart.Position
+            local distance = (myPos - targetPos).Magnitude -- 计算直线距离
+            distanceText.Text = string.format("距离: %.1f studs", distance)
+        end
+    end
+
+    -- 每帧更新
+    local connection = runService.RenderStepped:Connect(updateInfo)
+
+    -- 角色消失时清理
+    humanoid.Died:Connect(function()
+        connection:Disconnect()
+        highlight:Destroy()
+        billboard:Destroy()
+    end)
+    targetPlayer.CharacterRemoving:Connect(function()
+        connection:Disconnect()
+        highlight:Destroy()
+        billboard:Destroy()
+    end)
+end
+
+-- 对现有玩家初始化
+for _, p in ipairs(game.Players:GetPlayers()) do
+    createPlayerIndicators(p)
+end
+
+-- 监听新玩家加入
+game.Players.PlayerAdded:Connect(createPlayerIndicators)
