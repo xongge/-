@@ -39,7 +39,7 @@ menuBg.Size = UDim2.new(1, 0, 1, 0) -- 填满菜单面板
 menuBg.Image = "rbxassetid://119925416985042" -- 替换为你的背景图片ID
 print("图片获取成功")
 menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
---menuBg.BackgroundTransparency = 1 -- 新增：图片自身背景透明
+menuBg.BackgroundTransparency = 1 -- 新增：图片自身背景透明
 menuBg.Parent = menuPanel
 
 -- 菜单拖动按钮
@@ -89,6 +89,7 @@ local function createButton(text, y, onClick)
     btn.Text = text
     btn.TextColor3 = Color3.new(1, 1, 1)
     btn.Parent = contentContainer
+dragButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
     btn.MouseButton1Click:Connect(onClick)
     return btn
 end
