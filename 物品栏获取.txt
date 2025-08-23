@@ -1,0 +1,39 @@
+local player = game.Players.LocalPlayer
+
+-- 等待玩家角色和背包加载完成
+local backpack = player:WaitForChild("Backpack")
+local starterGear = player:WaitForChild("StarterGear") -- 存储重生后保留的物品
+
+-- 函数：复制并给予物品
+local function giveSameItems()
+    -- 存储所有需要复制的物品（去重，避免重复给予）
+    local itemsToCopy = {}
+
+    -- 从背包获取物品
+    for _, item in ipairs(backpack:GetChildren()) do
+        -- 只处理工具类物品（Tool）
+        if item:IsA("Tool") and not itemsToCopy[item.Name] then
+            itemsToCopy[item.Name] = item
+        end
+    end
+
+    -- 从StarterGear获取物品（重生后保留的工具）
+    for _, item in ipairs(starterGear:GetChildren()) do
+        if item:IsA("Tool") and not itemsToCopy[item.Name] then
+            itemsToCopy[item.Name] = item
+        end
+    end
+
+    -- 复制并给予物品
+    for name, originalItem in pairs(itemsToCopy) do
+        -- 克隆物品
+        local newItem = originalItem:Clone()
+        -- 将克隆的物品放入背包
+        newItem.Parent = backpack
+        print("已给予物品：" .. name)
+    end
+end
+
+-- 执行函数（可以绑定到按钮点击等事件）
+giveSameItems()
+print("物品复制完成，已添加到背包")
