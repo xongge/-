@@ -18,7 +18,7 @@ floatingBall.Position = UDim2.new(0.1, 0, 0.5, 0)
 floatingBall.Image = "rbxassetid://85822496031857" -- 这里替换为实际图片的assetid
 floatingBall.ScaleType = Enum.ScaleType.Fit -- 图片适应按钮大小
 -- 移除文字相关属性，添加背景（可选，若图片有透明区域）
-floatingBall.BackgroundTransparency = 1 -- 背景透明（如果图片本身有背景可设为0）
+--floatingBall.BackgroundTransparency = 1 -- 背景透明（如果图片本身有背景可设为0）
 floatingBall.BorderSizePixel = 0 -- 去掉边框（可选）
 floatingBall.Parent = screenGui
 
