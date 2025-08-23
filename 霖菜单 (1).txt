@@ -102,8 +102,8 @@ createButton("自然黑洞", 190, function()
     print("开启自然黑洞")
 end)
 
-createButton("物品偷取", 250, function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/-/refs/heads/main/物品栏获取.txt"))()
+createButton("保护房子清图", 250, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/XOTRXONY/EasyScript/refs/heads/main/zombie.luau"))()
     print("oky")
 end)
 
