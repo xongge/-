@@ -26,7 +26,7 @@ floatingBall.Parent = screenGui
 -- 创建菜单面板
 local menuPanel = Instance.new("Frame")
 menuPanel.Name = "MenuPanel"
-menuPanel.Size = UDim2.new(0, 220, 0, 250)
+menuPanel.Size = UDim2.new(0, 220, 0, 300) -- 适当增加高度
 menuPanel.Position = UDim2.new(0.2, 0, 0.5, 0)
 menuPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 menuPanel.BackgroundTransparency = 0.6
@@ -54,6 +54,23 @@ minimizeButton.TextColor3 = Color3.new(1, 1, 1)
 minimizeButton.BorderSizePixel = 0
 minimizeButton.Parent = menuPanel
 
+-- 添加滚动容器
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Name = "ScrollContent"
+scrollFrame.Size = UDim2.new(1, 0, 1, -30) -- 减去拖动栏高度
+scrollFrame.Position = UDim2.new(0, 0, 0, 30)
+scrollFrame.BackgroundTransparency = 1
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.Parent = menuPanel
+
+-- 滚动内容容器（用于存放所有按钮）
+local contentContainer = Instance.new("Frame")
+contentContainer.Name = "ContentContainer"
+contentContainer.Size = UDim2.new(1, 0, 0, 500) -- 根据按钮数量设置足够高度
+contentContainer.BackgroundTransparency = 1
+contentContainer.Parent = scrollFrame
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, contentContainer.AbsoluteSize.Y)
+
 -- 创建功能按钮（带点击事件）
 local function createButton(text, y, onClick)
     local btn = Instance.new("TextButton")
@@ -62,44 +79,45 @@ local function createButton(text, y, onClick)
     btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     btn.Text = text
     btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.Parent = menuPanel
+    btn.Parent = contentContainer
     btn.MouseButton1Click:Connect(onClick)
     return btn
 end
 
--- 飞行按钮点击事件（在这里写飞行逻辑）
-createButton("飞行", 40, function()
-    -- 提示：飞行功能通常需要控制角色的Humanoid或施加力
-    -- 示例步骤：
-    -- 1. 获取角色的Humanoid：local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-    -- 2. 切换飞行状态：比如设置humanoid.PlatformStand = true（让角色悬空）
-    -- 3. 通过键盘输入（如WASD）控制移动方向，用BodyMovers施加力
+-- 原有按钮
+createButton("飞行", 10, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/fly-/refs/heads/main/飞行脚本.txt"))()
 end)
 
--- 穿墙按钮点击事件（在这里写穿墙逻辑）
-createButton("子弹追踪(未测试)", 100, function()
-    -- 提示：穿墙功能通常需要忽略碰撞
-    -- 示例步骤：
-    -- 1. 获取角色的所有碰撞部件：for _, part in ipairs(player.Character:GetDescendants()) do ... end
-    -- 2. 切换碰撞状态：设置part.CanCollide = false（关闭碰撞）
-    -- 3. 可以加一个开关变量（如isNoclip）控制开启/关闭
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E5%AD%90%E5%BC%B9%E8%BF%BD%E8%B8%AA.txt"))()
+createButton("后门v3", 70, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/iK4oS/backdoor.exe/v6x/source.lua"))()
 end)
 
--- 自瞄按钮点击事件（在这里写自瞄逻辑）
-createButton("自瞄", 160, function()
-    -- 提示：自瞄功能通常需要射线检测锁定目标
-    -- 示例步骤：
-    -- 1. 用RunService循环检测：RunService.RenderStepped:Connect(function() ... end)
-    -- 2. 发射射线检测敌人：local ray = Ray.new(枪口位置, 瞄准方向 * 距离)
-    -- 3. 获取目标位置后，控制角色头部/武器朝向目标：CFrame.lookAt(当前位置, 目标位置)
+createButton("自瞄", 130, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E8%87%AA%E7%9E%84.txt"))()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/lin-/refs/heads/main/%E9%9D%A2%E5%90%91.txt"))()
+
+-- 新增三个按钮
+createButton("自然黑洞", 190, function()
+    -- 黑洞逻辑可以在这里实现
+    loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-BLACK-HOLE-30646"))()
+    print("开启自然黑洞")
+end)
+
+createButton("物品偷取", 250, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/-/refs/heads/main/物品栏获取.txt"))()
+    
+    print("oky")
+end)
+
+createButton("透视", 310, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/-/refs/heads/main/透视.txt"))()
+    
+    -- 透视逻辑可以在这里实现
+    print("开启透视")
 end)
 
 -- 关闭按钮
-local closeBtn = createButton("关闭", 220, function()
+local closeBtn = createButton("关闭", 370, function()
     screenGui:Destroy()
 end)
 
