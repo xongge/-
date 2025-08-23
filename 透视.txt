@@ -57,7 +57,7 @@ local function setupPlayerIndicator(targetPlayer)
     healthText.TextColor3 = Color3.fromRGB(255, 255, 255)
     distanceText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     distanceText.TextStrokeTransparency = 0
-    distanceText.Text = "距离: 0 米"
+    distanceText.Text = "距离: 0 studs"
     distanceText.Parent = billboard
 
     -- 实时更新信息
@@ -81,7 +81,7 @@ local function setupPlayerIndicator(targetPlayer)
             local targetRoot = character:FindFirstChild("HumanoidRootPart")
             if targetRoot then
                 local distance = (myRoot.Position - targetRoot.Position).Magnitude
-                distanceText.Text = string.format("距离: %.1f 米", distance)
+                distanceText.Text = string.format("距离: %.1f studs", distance)
             end
         end
     end
