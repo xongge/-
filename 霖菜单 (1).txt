@@ -103,7 +103,7 @@ createButton("自然黑洞", 190, function()
 end)
 
 createButton("音乐", 250, function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/-/refs/heads/main/音乐播放器.txt"))()
+    －－loadstring(game:HttpGet("https://raw.githubusercontent.com/xongge/-/refs/heads/main/音乐播放器.txt"))()
     print("oky")
 end)
 
