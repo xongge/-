@@ -47,7 +47,7 @@ end)
 if not success then
     warn("背景图片加载失败！请检查ID是否正确：", err)
     -- 可选：加载失败时显示备用图片
-    menuBg.Image = "rbxassetid://3926305904" -- 替换为一个有效的备用图片ID
+    menuBg.Image = "rbxassetid://119925416985042" -- 替换为一个有效的备用图片ID
 end
 menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
 menuBg.Parent = menuPanel
