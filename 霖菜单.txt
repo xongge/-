@@ -47,7 +47,7 @@ end)
 if not success then
     warn("背景图片加载失败！请检查ID是否正确：", err)
     -- 可选：加载失败时显示备用图片
-    menuBg.Image = "rbxassetid://119925416985042" -- 替换为一个有效的备用图片ID
+    menuBg.Image = "rbxassetid://5164287251" -- 替换为一个有效的备用图片ID
 end
 menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
 menuBg.Parent = menuPanel
@@ -245,30 +245,14 @@ menuPanel.InputBegan:Connect(startMenuDrag)
 -- 绑定结束拖动事件（全局监听，因为触摸可能在控件外结束）
 UserInputService.InputEnded:Connect(endDrag)
 
--- 实时更新位置（兼容鼠标和触摸的移动事件）
+-- 实时更新位置（保持不变）
 RunService.Heartbeat:Connect(function()
-    -- 获取当前输入位置（鼠标移动或触摸移动）
-    local currentInputPos = nil
-    if UserInputService:IsMouseButtonDown(Enum.UserInputType.MouseButton1) then
-        currentInputPos = UserInputService:GetMouseLocation()
-    else
-        -- 处理触摸输入（取第一个活跃触摸点）
-        local touches = UserInputService:GetTouches()
-        if #touches > 0 then
-            currentInputPos = touches[1].Position
-        end
+    local mousePos = UserInputService:GetMouseLocation()
+    if ballIsDragging then
+        floatingBall.Position = UDim2.new(0, mousePos.X - ballOffset.X, 0, mousePos.Y - ballOffset.Y)
     end
-    
-    -- 确保位置有效，且强制转为Vector2
-    if currentInputPos then
-        local inputPos = Vector2.new(currentInputPos.X, currentInputPos.Y)
-        
-        if ballIsDragging then
-            floatingBall.Position = UDim2.new(0, inputPos.X - ballOffset.X, 0, inputPos.Y - ballOffset.Y)
-        end
-        if menuIsDragging then
-            menuPanel.Position = UDim2.new(0, inputPos.X - menuOffset.X, 0, inputPos.Y - menuOffset.Y)
-        end
+    if menuIsDragging then
+        menuPanel.Position = UDim2.new(0, mousePos.X - menuOffset.X, 0, mousePos.Y - menuOffset.Y)
     end
 end)
 
