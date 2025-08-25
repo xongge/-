@@ -183,14 +183,92 @@ dragButton.InputEnded:Connect(function(input)
     end
 end)
 
--- 实时更新位置（保持不变）
-RunService.Heartbeat:Connect(function()
-    local mousePos = UserInputService:GetMouseLocation()
-    if ballIsDragging then
-        floatingBall.Position = UDim2.new(0, mousePos.X - ballOffset.X, 0, mousePos.Y - ballOffset.Y)
+-- 定义变量（保持不变）
+local floatingBall = script.Parent.FloatingBall
+local menuPanel = script.Parent.MenuPanel
+local ballIsDragging = false
+local menuIsDragging = false
+local ballOffset = Vector2.new(0, 0)
+local menuOffset = Vector2.new(0, 0)
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- 统一获取输入位置（兼容鼠标和触摸）
+local function getInputPosition(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        -- 鼠标输入：直接取位置
+        return input.Position
+    elseif input.UserInputType == Enum.UserInputType.Touch then
+        -- 触摸输入：取触摸位置
+        return input.Position
     end
-    if menuIsDragging then
-        menuPanel.Position = UDim2.new(0, mousePos.X - menuOffset.X, 0, mousePos.Y - menuOffset.Y)
+    return nil
+end
+
+-- 浮球开始拖动（兼容鼠标和触摸）
+local function startBallDrag(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        ballIsDragging = true
+        local inputPos = getInputPosition(input)
+        if inputPos then
+            -- 计算偏移量（浮球位置与输入位置的差值）
+            ballOffset = Vector2.new(inputPos.X - floatingBall.AbsolutePosition.X, inputPos.Y - floatingBall.AbsolutePosition.Y)
+        end
+        input:Capture()  -- 捕获输入，避免事件冒泡
+    end
+end
+
+-- 菜单开始拖动（兼容鼠标和触摸）
+local function startMenuDrag(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        menuIsDragging = true
+        local inputPos = getInputPosition(input)
+        if inputPos then
+            menuOffset = Vector2.new(inputPos.X - menuPanel.AbsolutePosition.X, inputPos.Y - menuPanel.AbsolutePosition.Y)
+        end
+        input:Capture()
+    end
+end
+
+-- 结束拖动（鼠标释放或触摸结束）
+local function endDrag(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        ballIsDragging = false
+        menuIsDragging = false
+    end
+end
+
+-- 绑定开始拖动事件（浮球和菜单）
+floatingBall.InputBegan:Connect(startBallDrag)
+menuPanel.InputBegan:Connect(startMenuDrag)
+
+-- 绑定结束拖动事件（全局监听，因为触摸可能在控件外结束）
+UserInputService.InputEnded:Connect(endDrag)
+
+-- 实时更新位置（兼容鼠标和触摸的移动事件）
+RunService.Heartbeat:Connect(function()
+    -- 获取当前输入位置（鼠标移动或触摸移动）
+    local currentInputPos = nil
+    if UserInputService:IsMouseButtonDown(Enum.UserInputType.MouseButton1) then
+        currentInputPos = UserInputService:GetMouseLocation()
+    else
+        -- 处理触摸输入（取第一个活跃触摸点）
+        local touches = UserInputService:GetTouches()
+        if #touches > 0 then
+            currentInputPos = touches[1].Position
+        end
+    end
+    
+    -- 确保位置有效，且强制转为Vector2
+    if currentInputPos then
+        local inputPos = Vector2.new(currentInputPos.X, currentInputPos.Y)
+        
+        if ballIsDragging then
+            floatingBall.Position = UDim2.new(0, inputPos.X - ballOffset.X, 0, inputPos.Y - ballOffset.Y)
+        end
+        if menuIsDragging then
+            menuPanel.Position = UDim2.new(0, inputPos.X - menuOffset.X, 0, inputPos.Y - menuOffset.Y)
+        end
     end
 end)
 
