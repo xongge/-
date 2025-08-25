@@ -36,7 +36,7 @@ menuPanel.Parent = screenGui
 local menuBg = Instance.new("ImageLabel")
 menuBg.Name = "MenuBackground"
 menuBg.Size = UDim2.new(1, 0, 1, 0) -- 填满菜单面板
-menuBg.Image = "rbxassetid://5164287251" -- 你的背景图片ID
+menuBg.Image = "rbxassetid://82470606783097" -- 你的背景图片ID
 -- 新增1：强制图片自身背景透明（避免默认白色背景遮挡）
 menuBg.BackgroundTransparency = 1 
 -- 新增2：验证图片是否加载成功
@@ -47,7 +47,7 @@ end)
 if not success then
     warn("背景图片加载失败！请检查ID是否正确：", err)
     -- 可选：加载失败时显示备用图片
-    menuBg.Image = "rbxassetid://5164287251" -- 替换为一个有效的备用图片ID
+    menuBg.Image = "rbxassetid://119925416985042" -- 替换为一个有效的备用图片ID
 end
 menuBg.ScaleType = Enum.ScaleType.Stretch -- 图片拉伸适配
 menuBg.Parent = menuPanel
@@ -94,7 +94,7 @@ local function createButton(text, y, onClick)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.9, 0, 0, 50)
     btn.Position = UDim2.new(0.05, 0, 0, y)
-    btn.BackgroundColor3 = Color3.fromRGB（0, 0, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     btn.BackgroundTransparency = 0.3 -- 按钮半透明（0-1之间调整）
     btn.Text = text
     btn.TextColor3 = Color3.new(1, 1, 1)
